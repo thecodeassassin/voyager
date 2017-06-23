@@ -73,43 +73,56 @@ func ExportMetrics(w http.ResponseWriter, r *http.Request) {
 	if podIP == "" {
 		oneliners.FILE()
 		podIP = "127.0.0.1"
-		return
 	}
 	oneliners.FILE()
 	oneliners.FILE(apiGroup, namespace, name, podIP)
 
 	switch apiGroup {
 	case "extensions":
+		oneliners.FILE()
 		var reg *prometheus.Registry
 		if val, ok := registerers.Get(r.URL.Path); ok {
+			oneliners.FILE()
 			reg = val.(*prometheus.Registry)
 		} else {
+			oneliners.FILE()
 			reg = prometheus.NewRegistry()
 			if absent := registerers.SetIfAbsent(r.URL.Path, reg); !absent {
+				oneliners.FILE()
 				r2, _ := registerers.Get(r.URL.Path)
 				reg = r2.(*prometheus.Registry)
 			} else {
+				oneliners.FILE()
 				log.Infof("Configuring exporter for standard ingress %s in namespace %s", name, namespace)
 				ingress, err := kubeClient.ExtensionsV1beta1().Ingresses(namespace).Get(name, metav1.GetOptions{})
+				oneliners.FILE()
 				if kerr.IsNotFound(err) {
+					oneliners.FILE()
 					http.NotFound(w, r)
 					return
 				} else if err != nil {
+					oneliners.FILE()
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
+				oneliners.FILE()
 				engress, err := api.NewEngressFromIngress(ingress)
 				if err != nil {
+					oneliners.FILE()
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
+				oneliners.FILE()
 				scrapeURL, err := getScrapeURL(engress, podIP)
 				if err != nil {
+					oneliners.FILE()
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
 				exporter, err := hpe.NewExporter(scrapeURL, selectedServerMetrics, haProxyTimeout)
+				oneliners.FILE()
 				if err != nil {
+					oneliners.FILE()
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
