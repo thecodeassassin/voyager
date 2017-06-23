@@ -40,30 +40,42 @@ func DeleteRegistry(w http.ResponseWriter, r *http.Request) {
 func ExportMetrics(w http.ResponseWriter, r *http.Request) {
 	oneliners.FILE()
 	params, found := pat.FromContext(r.Context())
+	oneliners.FILE()
 	if !found {
+		oneliners.FILE()
 		http.Error(w, "Missing parameters", http.StatusBadRequest)
 		return
 	}
+	oneliners.FILE()
 	apiGroup := params.Get(PathParamAPIGroup)
 	if apiGroup == "" {
+		oneliners.FILE()
 		http.Error(w, "Missing parameter:"+PathParamAPIGroup, http.StatusBadRequest)
+		oneliners.FILE()
 		return
 	}
+	oneliners.FILE()
 	namespace := params.Get(PathParamNamespace)
 	if namespace == "" {
+		oneliners.FILE()
 		http.Error(w, "Missing parameter:"+PathParamNamespace, http.StatusBadRequest)
 		return
 	}
+	oneliners.FILE()
 	name := params.Get(PathParamName)
 	if name == "" {
+		oneliners.FILE()
 		http.Error(w, "Missing parameter:"+PathParamName, http.StatusBadRequest)
 		return
 	}
+	oneliners.FILE()
 	podIP := r.URL.Query().Get(QueryParamPodIP)
 	if podIP == "" {
+		oneliners.FILE()
 		podIP = "127.0.0.1"
 		return
 	}
+	oneliners.FILE()
 	oneliners.FILE(apiGroup, namespace, name, podIP)
 
 	switch apiGroup {
