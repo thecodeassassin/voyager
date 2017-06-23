@@ -16,6 +16,7 @@ import (
 	"github.com/prometheus/common/version"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"github.com/tamalsaha/go-oneliners"
 )
 
 const (
@@ -37,6 +38,7 @@ func DeleteRegistry(w http.ResponseWriter, r *http.Request) {
 }
 
 func ExportMetrics(w http.ResponseWriter, r *http.Request) {
+	oneliners.FILE()
 	params, found := pat.FromContext(r.Context())
 	if !found {
 		http.Error(w, "Missing parameters", http.StatusBadRequest)
@@ -62,6 +64,7 @@ func ExportMetrics(w http.ResponseWriter, r *http.Request) {
 		podIP = "127.0.0.1"
 		return
 	}
+	oneliners.FILE(apiGroup, namespace, name, podIP)
 
 	switch apiGroup {
 	case "extensions":
@@ -107,32 +110,43 @@ func ExportMetrics(w http.ResponseWriter, r *http.Request) {
 	case api.GroupName:
 		var reg *prometheus.Registry
 		if val, ok := registerers.Get(r.URL.Path); ok {
+			oneliners.FILE()
 			reg = val.(*prometheus.Registry)
 		} else {
 			reg = prometheus.NewRegistry()
+			oneliners.FILE()
 			if absent := registerers.SetIfAbsent(r.URL.Path, reg); !absent {
+				oneliners.FILE()
 				r2, _ := registerers.Get(r.URL.Path)
 				reg = r2.(*prometheus.Registry)
+				oneliners.FILE()
 			} else {
+				oneliners.FILE()
 				log.Infof("Configuring exporter for appscode ingress %s in namespace %s", name, namespace)
 				engress, err := extClient.Ingresses(namespace).Get(name)
 				if kerr.IsNotFound(err) {
+					oneliners.FILE()
 					http.NotFound(w, r)
 					return
 				} else if err != nil {
+					oneliners.FILE()
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
 				scrapeURL, err := getScrapeURL(engress, podIP)
 				if err != nil {
+					oneliners.FILE()
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
+				oneliners.FILE()
 				exporter, err := hpe.NewExporter(scrapeURL, selectedServerMetrics, haProxyTimeout)
 				if err != nil {
+					oneliners.FILE()
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
+				oneliners.FILE()
 				reg.MustRegister(exporter)
 				reg.MustRegister(version.NewCollector("haproxy_exporter"))
 			}
